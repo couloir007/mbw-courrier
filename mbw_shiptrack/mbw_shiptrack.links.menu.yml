@@ -1,0 +1,6 @@
+mbw_shiptrack.settings_form:
+  title: 'MBW ShipTrack'
+  description: 'Configure MBW ShipTrack.'
+  parent: system.admin_config_system
+  route_name: mbw_shiptrack.settings_form
+  weight: 10

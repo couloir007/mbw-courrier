@@ -1,0 +1,4 @@
+administer mbw_payment configuration:
+  title: 'Administer mbw_payment configuration'
+  description: 'Optional description.'
+  restrict access: true

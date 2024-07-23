@@ -1,0 +1,43 @@
+<?php
+
+/**
+ * Implements hook_theme().
+ */
+function mbw_shipping_theme($existing, $type, $theme, $path) {
+  return [
+    'order_payment' => [
+      'variables' => [
+        'order_uuid' => NULL,
+        'order_id' => NULL,
+      ],
+    ],
+    'order_review' => [
+      'variables' => [
+        'order' => NULL,
+      ],
+    ],
+    'order_complete' => [
+      'variables' => [
+        'order_uuid' => NULL,
+        'order_id' => NULL,
+        'order_total_cost' => NULL,
+        'order_payment_order_no' => NULL,
+        'order_shiptrack_label_id' => NULL,
+      ],
+    ],
+    'order_error' => [
+      'variables' => [
+        'order_uuid' => NULL,
+      ],
+    ],
+    'order_guest' => [
+      'variables' => [
+      ],
+    ],
+    'order_messages' => [
+      'variables' => [
+        'messages' => NULL,
+      ],
+    ],
+  ];
+}

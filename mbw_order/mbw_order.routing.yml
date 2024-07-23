@@ -1,0 +1,7 @@
+entity.order.settings:
+  path: 'admin/structure/order'
+  defaults:
+    _form: '\Drupal\mbw_order\Form\OrderSettingsForm'
+    _title: 'Order'
+  requirements:
+    _permission: 'administer order'

@@ -1,0 +1,7 @@
+entity.item.settings:
+  path: 'admin/structure/item'
+  defaults:
+    _form: '\Drupal\mbw_item\Form\ItemSettingsForm'
+    _title: 'Item'
+  requirements:
+    _permission: 'administer item'

@@ -1,0 +1,4 @@
+entity.address.settings:
+  title: 'Settings'
+  route_name: entity.address.settings
+  base_route: entity.address.settings

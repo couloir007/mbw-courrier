@@ -1,0 +1,23 @@
+<?php
+
+use Drupal\mbw_address\Form\AddressInlineForm;
+
+/**
+ * Implements hook_theme().
+ */
+function mbw_address_theme($existing, $type, $theme, $path) {
+  return [
+    'address_manage' => [
+      'variables' => [
+        'addresses' => NULL,
+      ],
+    ],
+  ];
+}
+
+/**
+ * Implements hook_entity_type_alter().
+ */
+function mbw_address_entity_type_alter(&$entity_types) {
+  $entity_types['address']->setHandlerClass('inline_form', AddressInlineForm::class);
+}

@@ -1,0 +1,11 @@
+# Schema for the configuration files of the mbw_shipping module.
+mbw_shipping.settings:
+  type: config_object
+  label: 'mbw_shipping settings'
+  mapping:
+    tax_rate:
+      type: float
+      label: 'Tax Rate'
+    tax_label:
+      type: string
+      label: 'Tax Label'

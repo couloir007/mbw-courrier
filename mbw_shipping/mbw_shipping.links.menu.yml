@@ -1,0 +1,6 @@
+mbw_shipping.settings_form:
+  title: 'MBW Shipping'
+  description: 'Configure MBW Shipping.'
+  parent: system.admin_config_system
+  route_name: mbw_shipping.settings_form
+  weight: 10

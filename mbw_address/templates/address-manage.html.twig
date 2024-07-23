@@ -1,0 +1,32 @@
+<div>
+  <h2>Manage Address Book</h2>
+
+  {% if addresses %}
+    <table>
+      <thead>
+        <tr>
+          <th>Type</th>
+          <th>Company</th>
+          <th>Address</th>
+          <th>City</th>
+          <th colspan="2">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+      {% for address in addresses %}
+        <tr>
+          <td>{{ address.type }}</td>
+          <td>{{ address.email }}</td>
+          <td>{{ address.organization }}</td>
+          <td>{{ address.address_line1 }}</td>
+          <td>{{ address.locality }}</td>
+{#          <td><a href="/address/edit/{{ address.id }}">Edit</a></td>#}
+          <td><a href="/address/delete/{{ address.id }}">Delete</a></td>
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  {% else %}
+    <p>No saved addresses.</p>
+  {% endif %}
+</div>

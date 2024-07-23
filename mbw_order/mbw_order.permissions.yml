@@ -1,0 +1,11 @@
+administer order:
+  title: 'Administer order settings'
+  restrict access: true
+delete order:
+  title: Delete order
+create order:
+  title: Create order
+view order:
+  title: View order
+edit order:
+  title: Edit order

@@ -1,0 +1,83 @@
+<div class="order-content order-review">
+    <h2>Review Order</h2>
+
+    <div class="order-content__split">
+        <div>
+            <table>
+                <thead>
+                    <tr>
+                        <th colspan="2">Order Details</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Email Address</td>
+                        <td>{{ order.email }}</td>
+                    </tr>
+                    <tr>
+                        <td>Pick-up Request Date</td>
+                        <td>{{ order.requested_date|date('F j, Y g:ma') }}</td>
+                    </tr>
+                    <tr>
+                        <td>From</td>
+                        <td>{{ order.from }}</td>
+                    </tr>
+                    <tr>
+                        <td>To</td>
+                        <td>{{ order.to }}</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div>
+            <table>
+                <thead>
+                    <tr>
+                        <th colspan="2">Order Cost</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% if order.show_cost %}
+                    <tr>
+                        <td>Freight Charge</td>
+                        <td>${{ order.subtotal }}</td>
+                    </tr>
+                    <tr>
+                        <td>Fuel Surcharge</td>
+                        <td>${{ order.fuel_surchage }}</td>
+                    </tr>
+                    <tr>
+                        <td>Tax</td>
+                        <td>${{ order.tax }}</td>
+                    </tr>
+                    <tr>
+                        <td>Total Cost</td>
+                        <td>${{ order.total_cost }}</td>
+                    </tr>
+                    {% endif %}
+                    {% if order.shipping_type != 'prepaid' %}
+                    <tr>
+                      <td colspan="2">Costs will be verified and billed to customer account.</td>
+                    </tr>
+                    {% endif %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    {% if order.show_cost %}<p class="order-content__disclaimer">Cost subject to change.</p>{% endif %}
+
+    <div class="order-content__split">
+        {% if order.status == 'order_created' or order.status == 'collect_billing' %}
+            <a href="/order/edit/{{ order.id }}" class="order-button order-button--alt">Edit Order</a>
+        {% else %}
+            <p>Order can no longer be edited.</p>
+        {% endif %}
+        {% if order.shipping_type == 'prepaid' and not order.is_logged_in %}
+          <a href="/order/payment/{{ order.id }}" class="order-button">Complete Payment</a>
+        {% else %}
+          <a href="/order/process/{{ order.id }}" class="order-button">Complete Order</a>
+        {% endif %}
+    </div>
+</div>

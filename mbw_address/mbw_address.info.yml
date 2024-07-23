@@ -1,0 +1,5 @@
+name: MBW Address
+type: module
+description: Defines Address entity and related helpers.
+package: MBW
+core_version_requirement: ^9 || ^10

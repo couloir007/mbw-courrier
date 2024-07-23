@@ -1,0 +1,5 @@
+name: MBW Order
+type: module
+description: Defines Order entity and related helpers.
+package: MBW
+core_version_requirement: ^9 || ^10

@@ -1,0 +1,5 @@
+entity.item.settings:
+  title: 'Item'
+  description: 'Configure an Item entity type.'
+  route_name:  entity.item.settings
+  parent: system.admin_structure

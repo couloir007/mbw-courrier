@@ -1,0 +1,5 @@
+name: MBW Payment
+type: module
+description: Provides payment API integration.
+package: MBW
+core_version_requirement: ^9 || ^10

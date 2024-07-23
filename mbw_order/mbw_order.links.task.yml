@@ -1,0 +1,22 @@
+entity.order.settings:
+  title: 'Settings'
+  route_name: entity.order.settings
+  base_route: entity.order.settings
+entity.order.view:
+  title: 'View'
+  route_name: entity.order.canonical
+  base_route: entity.order.canonical
+entity.order.edit_form:
+  title: 'Edit'
+  route_name: entity.order.edit_form
+  base_route: entity.order.canonical
+entity.order.delete_form:
+  title: 'Delete'
+  route_name: entity.order.delete_form
+  base_route: entity.order.canonical
+  weight: 10
+entity.order.collection:
+  title: 'Orders'
+  route_name: entity.order.collection
+  base_route: system.admin_content
+  weight: 10

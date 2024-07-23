@@ -1,0 +1,5 @@
+entity.address.settings:
+  title: 'Address'
+  description: 'Configure an Address entity type.'
+  route_name:  entity.address.settings
+  parent: system.admin_structure

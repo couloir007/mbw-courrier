@@ -1,0 +1,11 @@
+{% if messages %}
+<div class="user-messages">
+  <h2>{{ 'Messages'|t }}</h2>
+  {% for message in messages %}
+    <div class="user-message">
+      <div class="user-message__title">{{ message.title }}</div>
+      <div class="user-message__body">{{ message.body|raw }}</div>
+    </div>
+  {% endfor %}
+</div>
+{% endif %}

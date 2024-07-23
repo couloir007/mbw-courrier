@@ -1,0 +1,7 @@
+name: MBW Shipping
+type: module
+description: Provides shipping order creation and processing integrations.
+package: MBW
+core_version_requirement: ^9 || ^10
+dependencies:
+  - inline_entity_form

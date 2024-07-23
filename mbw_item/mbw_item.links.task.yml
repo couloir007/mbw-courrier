@@ -1,0 +1,4 @@
+entity.item.settings:
+  title: 'Settings'
+  route_name: entity.item.settings
+  base_route: entity.item.settings

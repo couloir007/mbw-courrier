@@ -1,0 +1,4 @@
+services:
+  mbw_order.order_service:
+    class: Drupal\mbw_order\OrderService
+    arguments: ['@logger.factory', '@config.factory']

@@ -1,0 +1,47 @@
+.order-content table {
+    border: 1px solid #f0f0f0;
+    margin-bottom: 15px;
+    width: 100%;
+}
+
+.order-content__disclaimer {
+  font-size: 14px;
+  font-style: italic;
+  text-align: right;
+}
+
+@media (min-width: 768px) {
+    .order-content__split {
+        display: flex;
+        justify-content: space-between;
+    }
+
+    .order-content__split > div {
+        width: 49%;
+    }
+}
+
+.order-payment h2 {
+    text-align: center;
+}
+
+#paymentContainer {
+    border: 1px solid #f0f0f0;
+    margin: 0 auto;
+}
+
+.order-button {
+    background-color: #275d9d;
+    border-radius: 6px;
+    box-shadow: none;
+    color: #fff;
+    display: inline-block;
+    font-weight: 700;
+    margin-bottom: 16px;
+    padding: 12px 18px;
+    text-decoration: none;
+    width: auto;
+}
+.order-button--alt {
+    background-color: #333;
+}

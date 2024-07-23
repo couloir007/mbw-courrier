@@ -1,0 +1,358 @@
+<?php
+
+/**
+ * @file
+ * Provides an order entity type.
+ */
+
+use Drupal\Core\Datetime\DrupalDateTime;
+use Drupal\Core\Render\Element;
+use Drupal\datetime\Plugin\Field\FieldType\DateTimeItem;
+use Drupal\mbw_order\Entity\Order;
+use Drupal\mbw_order\FormPreRenders;
+use Drupal\user\UserInterface;
+use Drupal\Core\Url;
+use Symfony\Component\HttpFoundation\RedirectResponse;
+
+/**
+ * Implements hook_theme().
+ */
+function mbw_order_theme() {
+  return [
+    'order' => [
+      'render element' => 'elements',
+    ],
+    'order_detail' => [
+      'variables' => [
+        'order' => NULL,
+      ],
+    ],
+  ];
+}
+
+/**
+ * Prepares variables for order templates.
+ *
+ * Default template: order.html.twig.
+ *
+ * @param array $variables
+ *   An associative array containing:
+ *   - elements: An associative array containing the order information and any
+ *     fields attached to the entity.
+ *   - attributes: HTML attributes for the containing element.
+ */
+function template_preprocess_order(array &$variables) {
+  $variables['view_mode'] = $variables['elements']['#view_mode'];
+  foreach (Element::children($variables['elements']) as $key) {
+    $variables['content'][$key] = $variables['elements'][$key];
+  }
+}
+
+/**
+ * Implements hook_user_cancel().
+ */
+function mbw_order_user_cancel($edit, UserInterface $account, $method) {
+  switch ($method) {
+    case 'user_cancel_reassign':
+      // Anonymize orders.
+      $storage = \Drupal::entityTypeManager()->getStorage('order');
+      $order_ids = $storage->getQuery()
+//        ->condition('uid', $account->id())
+        ->accessCheck(TRUE)
+        ->execute();
+      foreach ($storage->loadMultiple($order_ids) as $order) {
+        $order->setOwnerId(0);
+        $order->save();
+      }
+      break;
+  }
+}
+
+/**
+ * Implements hook_ENTITY_TYPE_predelete() for user entities.
+ */
+function mbw_order_user_predelete(UserInterface $account) {
+  // Delete orders.
+  $storage = \Drupal::entityTypeManager()->getStorage('order');
+  $order_ids = $storage->getQuery()
+//    ->condition('uid', $account->id())
+    ->accessCheck(TRUE)
+    ->execute();
+  $orders = $storage->loadMultiple($order_ids);
+  $storage->delete($orders);
+}
+
+/**
+ * Implements hook_ENTITY_TYPE_delete().
+ */
+function mbw_order_order_delete(Order $order) {
+  // Get associated items and addresses.
+  $order_items = $order->field_items->referencedEntities();
+
+  if (count($order_items)) {
+    // Delete order items.
+    foreach($order_items as $order_item) {
+      $order_item->delete();
+    }
+  }
+}
+
+/**
+ * Implements hook_form_alter().
+ */
+function mbw_order_form_alter(&$form, \Drupal\Core\Form\FormStateInterface $form_state, $form_id) {
+  if ($form_id == 'order_add_form' || $form_id == 'order_edit_form') {
+    $user = \Drupal::currentUser();
+    $user_id = $user->id();
+
+    $session = \Drupal::request()->getSession();
+    $guest_access = $session->get('mbw_order.guest_access');
+
+    if (!$user_id && !$guest_access) {
+      $url = Url::fromRoute('mbw_shipping.guest_login');
+      $redirect = new RedirectResponse($url->toString());
+      $redirect->send();
+    }
+
+    $form['#attached']['library'][] = 'mbw_shipping/mbw_shipping';
+
+    \Drupal::service('page_cache_kill_switch')->trigger();
+    $entity = $form_state->getFormObject()->getEntity();
+
+    // Set min value on pickup date
+    $form['requested_date']['widget'][0]['value']['#attributes']['min'] = DrupalDateTime::createFromTimestamp(strtotime('now'))->format(DateTimeItem::DATE_STORAGE_FORMAT);
+
+
+    // Create containers for Address
+    $form['pickup_address_container'] = [
+      '#type' => 'container',
+      '#prefix' => '<div class="order-form-container"><div class="order-form-container__title">Pickup Address</div>',
+      '#suffix' => '</div>',
+      '#weight' => 11,
+    ];
+    $form['pickup_address_container']['field_pickup_address'] = $form['field_pickup_address'];
+    $form['pickup_address_container']['field_user_phone'] = $form['field_user_phone'];
+    $form['pickup_address_container']['field_user_email'] = $form['field_user_email'];
+    $form['field_pickup_address'] = null;
+    $form['field_user_phone'] = null;
+    $form['field_user_email'] = null;
+
+    $form['destination_address_container'] = [
+      '#type' => 'container',
+      '#prefix' => '<div class="order-form-container"><div class="order-form-container__title">Destination Address</div>',
+      '#suffix' => '</div>',
+      '#weight' => 13,
+    ];
+    $form['destination_address_container']['field_destination_address'] = $form['field_destination_address'];
+    $form['destination_address_container']['field_destination_phone'] = $form['field_destination_phone'];
+    $form['destination_address_container']['field_destination_email'] = $form['field_destination_email'];
+    $form['field_destination_address'] = null;
+    $form['field_destination_phone'] = null;
+    $form['field_destination_email'] = null;
+
+    // Check for logged in user.
+    $user = \Drupal::currentUser();
+    if ($user->isAuthenticated()) {
+      // Pull user email address from profile.
+      $form['pickup_address_container']['field_user_email']['widget'][0]['value']['#default_value'] = $user->getEmail();
+      // Disable field - Optional
+      // $form['pickup_address_container']['field_user_email']['widget'][0]['value']['#disabled'] = TRUE;
+
+      // Make account number visible depending on shipping type
+      $form['field_shipping_type']['widget']['#attributes']['name'] = 'field_shipping_type';
+      $form['field_account_number']['#states']['visible'] = [
+        ':input[name="field_shipping_type"]' => [
+          ['value' => 'collect'],
+          'or',
+          ['value' => 'third_party'],
+        ],
+      ];
+    } else {
+      $form['field_shipping_type']['#access'] = FALSE;
+      $form['field_account_number']['#access'] = FALSE;
+    }
+
+    // Remove province options from addresses
+    $form['pickup_address_container']['field_pickup_address']['widget'][0]['address']['#pre_render'][] = [FormPreRenders::class, 'mbwOrderPrerender'];
+    $form['pickup_address_container']['field_pickup_address']['#prefix'] = '<div id="pickup-address-field-wrapper">';
+    $form['destination_address_container']['field_destination_address']['widget'][0]['address']['#pre_render'][] = [FormPreRenders::class, 'mbwOrderPrerender'];
+    $form['destination_address_container']['field_destination_address']['#prefix'] = '<div id="destination-address-field-wrapper">';
+
+    // Add field to find saved addresses
+    if ($user->isAuthenticated()) {
+      $saved_addresses_destination = [
+        0 => 'Choose address',
+      ];
+      $query = \Drupal::entityQuery('address')
+                  ->condition('uid', $user->id())
+                  ->condition('field_address_type', 'destination');
+      $results = $query->execute();
+      if (count($results)) {
+        foreach($results as $address_id) {
+          $address           = \Drupal::entityTypeManager()
+                                      ->getStorage('address')
+                                      ->load($address_id);
+          $saved_address_label = $address->get('address')->organization . ' - ' . $address->get('address')->address_line1;
+          $saved_addresses_destination[$address_id] = $saved_address_label;
+        }
+      }
+
+      $saved_addresses_pickup = [
+        0 => 'Choose address',
+      ];
+      $query = \Drupal::entityQuery('address')
+                      ->condition('uid', $user->id())
+                      ->condition('field_address_type', 'pickup');
+      $results = $query->execute();
+      if (count($results)) {
+        foreach($results as $address_id) {
+          $address           = \Drupal::entityTypeManager()
+                                      ->getStorage('address')
+                                      ->load($address_id);
+          $saved_address_label = $address->get('address')->organization . ' - ' . $address->get('address')->address_line1;
+          $saved_addresses_pickup[$address_id] = $saved_address_label;
+        }
+      }
+
+      $form['pickup_address_container']['saved_addresses_pickup'] = [
+        '#type' => 'select',
+        '#title' => t('Saved Addresses'),
+        '#weight' => 10,
+        '#options' => $saved_addresses_pickup,
+        '#ajax' => [
+          'callback' => 'address_select_callback_pickup',
+          'event' => 'change',
+          'wrapper' => 'pickup-address-field-wrapper',
+        ],
+        '#attributes' => ['class' => ['dynamic-select']],
+      ];
+      $form['field_save_address_pickup'] = [
+        '#type'   => 'checkbox',
+        '#title'  => t('Save Address'),
+        '#weight' => 30,
+        '#default_value' => $entity->hasField('field_save_address_pickup') ? $entity->get('field_save_address_pickup')->value : FALSE,
+      ];
+      $form['pickup_address_container']['field_save_address_pickup'] = $form['field_save_address_pickup'];
+      $form['field_save_address_pickup'] = null;
+
+
+      $form['destination_address_container']['saved_addresses_destination'] = [
+        '#type' => 'select',
+        '#title' => t('Saved Addresses'),
+        '#weight' => 12,
+        '#options' => $saved_addresses_destination,
+        '#ajax' => [
+          'callback' => 'address_select_callback_destination',
+          'event' => 'change',
+          'wrapper' => 'destination-address-field-wrapper',
+        ],
+        '#attributes' => ['class' => ['dynamic-select']],
+      ];
+      $form['field_save_address_destination'] = [
+        '#type'   => 'checkbox',
+        '#title'  => t('Save Address'),
+        '#weight' => 20,
+        '#default_value' => $entity->hasField('field_save_address_destination') ? $entity->get('field_save_address_destination')->value : FALSE,
+      ];
+      $form['destination_address_container']['field_save_address_destination'] = $form['field_save_address_destination'];
+      $form['field_save_address_destination'] = null;
+
+      if ($user->isAuthenticated()) {
+        $form['pickup_address_container']['field_ save_address_pickup']['#suffix']           = '</div>';
+        $form['destination_address_container']['field_save_address_destination']['#suffix'] = '</div>';
+      }
+    } else {
+      $form['pickup_address_container']['field_user_email']['#suffix']             = '</div>';
+      $form['destination_address_container']['field_destination_email']['#suffix'] = '</div>';
+    }
+  }
+}
+
+function mbw_order_preprocess_views_view_field(&$variables) {
+  if ($variables['view']->id() === 'users_orders') {
+    if ($variables['field']->field == 'nothing') {
+      $row = $variables['row']->index;
+      $order_uuid = $variables['view']->result[$row]->_entity->get('uuid')->value;
+      $order_status = $variables['view']->result[$row]->_entity->get('field_status')->value;
+
+      switch ($order_status) {
+        case 'capture_success':
+          $output = '<a href="/order/complete/' . $order_uuid . '">View Order</a>';
+          break;
+        case 'order_created':
+        case 'pending_payment':
+        case 'collect_billing':
+          $output = '<a href="/order/review/' . $order_uuid . '">Review Order</a>';
+          break;
+        case 'preauth_failed':
+          $output = '<a href="/order/payment/' . $order_uuid . '">Retry Payment</a>';
+          break;
+        default:
+          $output = '';
+          break;
+      }
+
+      $variables['output'] = \Drupal\Core\Render\Markup::create($output);
+    }
+  }
+}
+
+function address_select_callback_pickup($form, $form_state) {
+  // Get Address entity
+  $address_id = $form['pickup_address_container']["saved_addresses_pickup"]['#value'];
+  $address = null;
+
+  if ($address_id) {
+    $address = \Drupal::entityTypeManager()
+                      ->getStorage('address')
+                      ->load($address_id);
+  }
+
+  $form['pickup_address_container']['field_pickup_address']['widget'][0]['address']['country_code']['#value']        = 'CA';
+  $form['pickup_address_container']['field_pickup_address']['widget'][0]['address']['organization']['#value']        = $address ? $address->get('address')->organization : '';
+  $form['pickup_address_container']['field_pickup_address']['widget'][0]['address']['address_line1']['#value']       = $address ? $address->get('address')->address_line1 : '';
+  $form['pickup_address_container']['field_pickup_address']['widget'][0]['address']['address_line2']['#value']       = $address ? $address->get('address')->address_line2 : '';
+  $form['pickup_address_container']['field_pickup_address']['widget'][0]['address']['locality']['#value']            = $address ? $address->get('address')->locality : '';
+  $form['pickup_address_container']['field_pickup_address']['widget'][0]['address']['administrative_area']['#value'] = $address ? $address->get('address')->administrative_area : '';
+  $form['pickup_address_container']['field_pickup_address']['widget'][0]['address']['postal_code']['#value']         = $address ? $address->get('address')->postal_code : '';
+  $form['pickup_address_container']['field_user_email']['widget'][0]['value']['#value'] = $address ? $address->get('field_email')->value : '';
+  $form['pickup_address_container']['field_user_phone']['widget'][0]['value']['#value'] = $address ? $address->get('field_telephone')->value : '';
+  $form['pickup_address_container']['field_save_address_pickup']['#attributes']['disabled'] = TRUE;
+
+  return [
+    $form['pickup_address_container']['field_pickup_address'],
+    $form['pickup_address_container']['field_user_email'],
+    $form['pickup_address_container']['field_user_phone'],
+    $form['pickup_address_container']['field_save_address_pickup'],
+  ];
+}
+
+function address_select_callback_destination($form, $form_state) {
+  // Get Address entity
+  $address_id = $form['destination_address_container']["saved_addresses_destination"]['#value'];
+  $address = null;
+
+  if ($address_id) {
+    $address = \Drupal::entityTypeManager()
+                      ->getStorage('address')
+                      ->load($address_id);
+  }
+
+  $form['destination_address_container']['field_destination_address']['widget'][0]['address']['country_code']['#value']        = 'CA';
+  $form['destination_address_container']['field_destination_address']['widget'][0]['address']['organization']['#value']        = $address ? $address->get('address')->organization : '';
+  $form['destination_address_container']['field_destination_address']['widget'][0]['address']['address_line1']['#value']       = $address ? $address->get('address')->address_line1 : '';
+  $form['destination_address_container']['field_destination_address']['widget'][0]['address']['address_line2']['#value']       = $address ? $address->get('address')->address_line2 : '';
+  $form['destination_address_container']['field_destination_address']['widget'][0]['address']['locality']['#value']            = $address ? $address->get('address')->locality : '';
+  $form['destination_address_container']['field_destination_address']['widget'][0]['address']['administrative_area']['#value'] = $address ? $address->get('address')->administrative_area : '';
+  $form['destination_address_container']['field_destination_address']['widget'][0]['address']['postal_code']['#value']         = $address ? $address->get('address')->postal_code : '';
+  $form['destination_address_container']['field_destination_email']['widget'][0]['value']['#value'] = $address ? $address->get('field_email')->value : '';
+  $form['destination_address_container']['field_destination_phone']['widget'][0]['value']['#value'] = $address ? $address->get('field_telephone')->value : '';
+  $form['destination_address_container']['field_save_address_destination']['#attributes']['disabled'] = TRUE;
+
+  return [
+    $form['destination_address_container']['field_destination_address'],
+    $form['destination_address_container']['field_destination_phone'],
+    $form['destination_address_container']['field_destination_email'],
+    $form['destination_address_container']['field_save_address_destination'],
+  ];
+}

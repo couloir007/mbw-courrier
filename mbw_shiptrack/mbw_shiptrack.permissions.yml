@@ -1,0 +1,4 @@
+administer mbw_shiptrack configuration:
+  title: 'Administer mbw_shiptrack configuration'
+  description: 'Optional description.'
+  restrict access: true

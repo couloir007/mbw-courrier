@@ -1,0 +1,27 @@
+entity.address.settings:
+  path: 'admin/structure/address'
+  defaults:
+    _form: '\Drupal\mbw_address\Form\AddressSettingsForm'
+    _title: 'Address'
+  requirements:
+    _permission: 'administer address'
+
+mbw_address.manage:
+  path: '/address/manage'
+  defaults:
+    _title: 'Address: Manage'
+    _controller: '\Drupal\mbw_address\Controller\MbwAddressController::manage'
+  requirements:
+    _permission: 'access content'
+  options:
+    no_cache: 'TRUE'
+
+mbw_address.delete:
+  path: '/address/delete/{addressId}'
+  defaults:
+    _title: 'Address: Delete'
+    _controller: '\Drupal\mbw_address\Controller\MbwAddressController::delete'
+  requirements:
+    _permission: 'access content'
+  options:
+    no_cache: 'TRUE'

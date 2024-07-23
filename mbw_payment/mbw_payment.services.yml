@@ -1,0 +1,4 @@
+services:
+  mbw_payment.moneris_service:
+    class: Drupal\mbw_payment\MonerisService
+    arguments: ['@logger.factory', '@config.factory', '@mbw_order.order_service']

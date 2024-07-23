@@ -1,0 +1,16 @@
+administer mbw_address configuration:
+  title: 'Administer mbw_address configuration'
+  description: 'Optional description.'
+  restrict access: true
+
+administer address:
+  title: 'Administer address settings'
+  restrict access: true
+delete address:
+  title: Delete address
+create address:
+  title: Create address
+view address:
+  title: View address
+edit address:
+  title: Edit address

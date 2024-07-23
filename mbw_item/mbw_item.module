@@ -1,0 +1,10 @@
+<?php
+
+use Drupal\mbw_item\Form\OrderItemInlineForm;
+
+/**
+ * Implements hook_entity_type_alter().
+ */
+function mbw_item_entity_type_alter(&$entity_types) {
+  $entity_types['item']->setHandlerClass('inline_form', OrderItemInlineForm::class);
+}

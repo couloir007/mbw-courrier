@@ -1,0 +1,4 @@
+administer mbw_shipping configuration:
+  title: 'Administer mbw_shipping configuration'
+  description: 'Optional description.'
+  restrict access: true

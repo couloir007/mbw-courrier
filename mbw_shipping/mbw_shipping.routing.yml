@@ -1,0 +1,87 @@
+mbw_shipping.settings_form:
+  path: '/admin/config/system/mbw-shipping'
+  defaults:
+    _title: 'mbw_shipping settings'
+    _form: 'Drupal\mbw_shipping\Form\SettingsForm'
+  requirements:
+    _permission: 'administer mbw_shipping configuration'
+
+mbw_shipping.payment:
+  path: '/order/payment/{order_uuid}'
+  defaults:
+    _title: 'Order: Payment'
+    _controller: '\Drupal\mbw_shipping\Controller\MbwShippingController::payment'
+  requirements:
+    _permission: 'access content'
+  options:
+    no_cache: 'TRUE'
+
+mbw_shipping.edit:
+  path: '/order/edit/{order_uuid}'
+  defaults:
+    _title: 'Order: Edit'
+    _controller: '\Drupal\mbw_shipping\Controller\MbwShippingController::edit'
+  requirements:
+    _permission: 'access content'
+  options:
+    no_cache: 'TRUE'
+
+mbw_shipping.review:
+  path: '/order/review/{order_uuid}'
+  defaults:
+    _title: 'Order: Review'
+    _controller: '\Drupal\mbw_shipping\Controller\MbwShippingController::review'
+  requirements:
+    _permission: 'access content'
+  options:
+    no_cache: 'TRUE'
+
+mbw_shipping.process:
+  path: '/order/process/{order_uuid}'
+  defaults:
+    _title: 'Order: Processing'
+    _controller: '\Drupal\mbw_shipping\Controller\MbwShippingController::process'
+  requirements:
+    _permission: 'access content'
+  options:
+    no_cache: 'TRUE'
+
+mbw_shipping.complete:
+  path: '/order/complete/{order_uuid}'
+  defaults:
+    _title: 'Order: Complete'
+    _controller: '\Drupal\mbw_shipping\Controller\MbwShippingController::complete'
+  requirements:
+    _permission: 'access content'
+  options:
+    no_cache: 'TRUE'
+
+mbw_shipping.error:
+  path: '/order/error/{order_uuid}'
+  defaults:
+    _title: 'Order: Error'
+    _controller: '\Drupal\mbw_shipping\Controller\MbwShippingController::error'
+  requirements:
+    _permission: 'access content'
+  options:
+    no_cache: 'TRUE'
+
+mbw_shipping.guest_login:
+  path: '/order/guest'
+  defaults:
+    _title: 'Order: Continue as Guest or Login'
+    _controller: '\Drupal\mbw_shipping\Controller\MbwShippingController::guest'
+  requirements:
+    _permission: 'access content'
+  options:
+    no_cache: 'TRUE'
+
+mbw_shipping.guest_login_continue:
+  path: '/order/guest/continue'
+  defaults:
+    _title: 'Order: Continue as Guest'
+    _controller: '\Drupal\mbw_shipping\Controller\MbwShippingController::continueAsGuest'
+  requirements:
+    _permission: 'access content'
+  options:
+    no_cache: 'TRUE'

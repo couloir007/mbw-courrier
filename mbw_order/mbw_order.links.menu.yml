@@ -1,0 +1,10 @@
+entity.order.settings:
+  title: 'Order'
+  description: 'Configure an Order entity type.'
+  route_name:  entity.order.settings
+  parent: system.admin_structure
+entity.order.collection:
+  title: 'Orders'
+  description: 'List of orders.'
+  route_name: entity.order.collection
+  parent: system.admin_content

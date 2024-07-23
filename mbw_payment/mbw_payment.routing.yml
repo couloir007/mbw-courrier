@@ -1,0 +1,27 @@
+mbw_payment.settings_form:
+  path: '/admin/config/system/mbw-payment'
+  defaults:
+    _title: 'MBW Payment Settings'
+    _form: 'Drupal\mbw_payment\Form\SettingsForm'
+  requirements:
+    _permission: 'administer mbw_payment configuration'
+
+mbw_payment.preload:
+  path: '/payment/preload'
+  defaults:
+    _title: 'Payment Preload'
+    _controller: '\Drupal\mbw_payment\Controller\MbwPaymentController::preload'
+  requirements:
+    _permission: 'access content'
+  options:
+    no_cache: 'TRUE'
+
+mbw_payment.preauth:
+  path: '/payment/preauth'
+  defaults:
+    _title: 'Payment Preauth'
+    _controller: '\Drupal\mbw_payment\Controller\MbwPaymentController::preauth'
+  requirements:
+    _permission: 'access content'
+  options:
+    no_cache: 'TRUE'

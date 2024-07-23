@@ -1,0 +1,4 @@
+services:
+  mbw_shiptrack.shiptrack:
+    class: Drupal\mbw_shiptrack\ShipTrack
+    arguments: ['@logger.factory', '@http_client', '@config.factory', '@mbw_order.order_service']

@@ -1,0 +1,5 @@
+name: MBW ShipTrack
+type: module
+description: Provides ShipTrack API integration.
+package: MBW
+core_version_requirement: ^9 || ^10

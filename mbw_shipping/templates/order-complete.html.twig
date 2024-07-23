@@ -1,0 +1,51 @@
+
+<div class="order-content order-complete">
+  <h2>Order Complete</h2>
+
+  <p>Your order has been processed successfully. Detail and your shipping label are below.</p>
+
+  <table>
+    {# <tr>
+      <td>Order ID</td>
+      <td>{{ order_uuid }}</td>
+    </tr> #}
+    <tr>
+      <td>Ref #</td>
+      <td>MBW{{ order_id + 2200 }}</td>
+    </tr>
+    {% if order_from %}
+    <tr>
+      <td>From</td>
+      <td>${{ order_from }}</td>
+    </tr>
+    {% endif %}
+    {% if order_to %}
+    <tr>
+      <td>To</td>
+      <td>${{ order_to }}</td>
+    </tr>
+    {% endif %}
+    {% if order_total_cost %}
+    <tr>
+      <td>Total Cost</td>
+      <td>${{ order_total_cost }}</td>
+    </tr>
+    {% endif %}
+    <tr>
+      <td>ShipTrack Label ID</td>
+      <td>{{ order_shiptrack_label_id }}</td>
+    </tr>
+    {% if order_payment_order_no %}
+    <tr>
+      <td>Payment Order Number</td>
+      <td>{{ order_payment_order_no }}</td>
+    </tr>
+    {% endif %}
+  </table>
+
+  <p>
+    <a href="/order/label/{{ order_uuid }}" target="_blank" class="order-button">Download Shipping Label</a>&nbsp;
+    <a href="/user" target="_blank" class="order-button">Return To Dashboard</a>&nbsp;
+    <a href="/order/add" target="_blank" class="order-button">Place Another Order</a>
+  </p>
+</div>

@@ -1,0 +1,18 @@
+# Custom module library for general purposes.
+mbw_payment:
+  js:
+    js/mbw-payment.js: {}
+  css:
+    component:
+      css/mbw-payment.css: {}
+  dependencies:
+    - core/drupal
+    - core/drupalSettings
+
+moneris_testing:
+  js:
+    https://gatewayt.moneris.com/chktv2/js/chkt_v2.00.js: { type: external, head: true }
+
+moneris_production:
+  js:
+    https://gateway.moneris.com/chktv2/js/chkt_v2.00.js: { type: external, head: true }

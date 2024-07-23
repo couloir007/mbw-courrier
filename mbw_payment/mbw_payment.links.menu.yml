@@ -1,0 +1,6 @@
+mbw_payment.settings_form:
+  title: 'MBW Payment'
+  description: 'Configure MBW Payment.'
+  parent: system.admin_config_system
+  route_name: mbw_payment.settings_form
+  weight: 10
